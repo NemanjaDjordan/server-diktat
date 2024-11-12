@@ -5,7 +5,7 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 8000;
 
-// Define the folder where your MP3 files are stored
+// Folder where MP3 files are stored
 const MP3_FOLDER = path.join(__dirname, 'enkriptovani_mp3_fajlovi');
 
 // Enable CORS for all routes
@@ -19,8 +19,9 @@ app.use((req, res, next) => {
 // Serve MP3 files as static files
 app.use(express.static(MP3_FOLDER));
 
-// Log available file links every 10 seconds
-setInterval(() => {
+// Function to log publicly accessible file links
+function logPublicLinks() {
+    const baseUrl = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
     console.log('Available file links:');
     fs.readdir(MP3_FOLDER, (err, files) => {
         if (err) {
@@ -28,12 +29,15 @@ setInterval(() => {
             return;
         }
         files.filter(file => file.endsWith('.mp3')).forEach(file => {
-            console.log(`http://localhost:${PORT}/${file}`);
+            console.log(`${baseUrl}/${file}`);
         });
     });
-}, 10000);
+}
+
+// Log links when the server starts
+logPublicLinks();
 
 // Start the server
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Server is running on ${process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`}`);
 });
