@@ -16,8 +16,8 @@ app.use((req, res, next) => {
     next();
 });
 
-// Serve MP3 files as static files
-app.use(express.static(MP3_FOLDER));
+// Serve MP3 files on a specific route
+app.use('/mp3', express.static(MP3_FOLDER));
 
 // Function to log publicly accessible file links
 function logPublicLinks() {
@@ -29,13 +29,18 @@ function logPublicLinks() {
             return;
         }
         files.filter(file => file.endsWith('.mp3')).forEach(file => {
-            console.log(`${baseUrl}/${file}`);
+            console.log(`${baseUrl}/mp3/${file}`);
         });
     });
 }
 
 // Log links when the server starts
 logPublicLinks();
+
+// Handle 404 errors for unknown routes
+app.use((req, res, next) => {
+    res.status(404).send('File not found');
+});
 
 // Start the server
 app.listen(PORT, () => {
